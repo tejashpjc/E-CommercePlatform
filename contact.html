@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - TomeTrove</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to bottom, #1E3A8A, #FFFFFF, #D4A373);
+        }
+        .cursive {
+            font-family: 'Dancing Script', cursive;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <header class="bg-blue-600 p-6 md:p-8 text-white flex justify-between items-center">
+        <h1 class="text-3xl md:text-4xl font-bold cursive"><a href="index.html">TomeTrove</a></h1>
+        <nav>
+            <ul class="flex space-x-4 text-lg md:text-xl">
+                <li><a href="index.html" class="hover:underline">Home</a></li>
+                <li><a href="cart.html" class="hover:underline">Cart</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="p-8 text-center">
+        <h2 class="text-4xl font-semibold">Contact Us</h2>
+        <p class="text-lg mt-4">We’d love to hear from you! Reach out to us with any questions or feedback.</p>
+
+        <div class="mt-6">
+            <p class="text-xl"><strong>Email:</strong> support@tometrove.com</p>
+            <p class="text-xl mt-2"><strong>Phone:</strong> (123) 456-7890</p>
+            <p class="text-xl mt-2"><strong>Address:</strong> 123 Book St, Phoenix, AZ</p>
+        </div>
+
+        <form class="mt-8 max-w-lg mx-auto bg-white p-6 shadow-lg rounded-lg">
+            <label class="block text-lg font-semibold">Your Name</label>
+            <input type="text" class="w-full p-3 border rounded-lg mt-2" placeholder="John Doe">
+
+            <label class="block text-lg font-semibold mt-4">Your Email</label>
+            <input type="email" class="w-full p-3 border rounded-lg mt-2" placeholder="email@example.com">
+
+            <label class="block text-lg font-semibold mt-4">Message</label>
+            <textarea class="w-full p-3 border rounded-lg mt-2" rows="5" placeholder="Write your message here..."></textarea>
+
+            <button class="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">Send Message</button>
+        </form>
+    </section>
+
+    <footer class="bg-blue-600 text-white p-4 text-center mt-8">
+        <p>&copy; 2025 TomeTrove. All rights reserved.</p>
+    </footer>
+</body>
+</html>
