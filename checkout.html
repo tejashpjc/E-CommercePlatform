@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - TomeTrove</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <script defer src="checkout.js"></script>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #1E3A8A, #FFFFFF, #D4A373);
+        }
+        .cursive {
+            font-family: 'Dancing Script', cursive;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <header class="bg-blue-600 p-6 md:p-8 text-white flex justify-between items-center">
+        <h1 class="text-3xl md:text-4xl font-bold cursive"><a href="index.html">TomeTrove</a></h1>
+        <nav>
+            <ul class="flex space-x-4 text-lg md:text-xl">
+                <li><a href="index.html" class="hover:underline">Home</a></li>
+                <li><a href="cart.html" class="hover:underline">Cart</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="p-8 max-w-3xl mx-auto bg-white shadow-lg rounded-lg">
+        <h2 class="text-3xl font-semibold text-center mb-6">Checkout</h2>
+        
+        <!-- Cart Summary -->
+        <div id="cart-summary" class="border p-4 rounded-lg">
+            <h3 class="text-2xl font-semibold mb-2">Order Summary</h3>
+            <div id="cart-items" class="mb-4">
+                <p class="text-gray-600">Your cart is empty.</p>
+            </div>
+            <p class="text-lg font-bold">Total: $<span id="total-price">0.00</span></p>
+        </div>
+
+        <!-- Checkout Form -->
+        <form id="checkout-form" class="mt-6">
+            <h3 class="text-2xl font-semibold mb-2">Billing Details</h3>
+            <label class="block text-lg font-semibold">Full Name</label>
+            <input type="text" class="w-full p-3 border rounded-lg mt-2" placeholder="John Doe" required>
+
+            <label class="block text-lg font-semibold mt-4">Email</label>
+            <input type="email" class="w-full p-3 border rounded-lg mt-2" placeholder="email@example.com" required>
+
+            <label class="block text-lg font-semibold mt-4">Address</label>
+            <input type="text" class="w-full p-3 border rounded-lg mt-2" placeholder="123 Main St, City, State" required>
+
+            <input type="hidden" id="paypal-amount" name="amount">
+
+            <button type="submit" class="mt-6 w-full bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-700 transition">
+                Pay with PayPal
+            </button>
+        </form>
+    </section>
+
+    <footer class="bg-blue-600 text-white p-4 text-center mt-8">
+        <p>&copy; 2025 TomeTrove. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const cartItemsContainer = document.getElementById("cart-items");
+            const totalPriceElement = document.getElementById("total-price");
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+            if (cart.length > 0) {
+                let total = 0;
+                cartItemsContainer.innerHTML = cart.map(item => {
+                    // Remove the '$' symbol and convert to float
+                    const price = parseFloat(item.price.replace(/[^0-9.]/g, ''));
+                    const quantity = parseInt(item.quantity);
+                    const itemTotal = price * quantity;
+                    total += itemTotal;
+                    
+                    return `
+                        <div class="p-2 border-b">
+                            <p class="text-lg font-semibold">${item.title} (${quantity})</p>
+                            <p class="text-gray-600">Price per item: $${price.toFixed(2)}</p>
+                            <p class="text-gray-600">Subtotal: $${itemTotal.toFixed(2)}</p>
+                        </div>
+                    `;
+                }).join("");
+                
+                // Add total section with more details
+                cartItemsContainer.innerHTML += `
+                    <div class="mt-4 pt-4 border-t">
+                        <p class="text-xl font-bold">Order Details:</p>
+                        <p class="text-gray-600">Number of Items: ${cart.reduce((acc, item) => acc + parseInt(item.quantity), 0)}</p>
+                        <p class="text-gray-600">Number of Unique Books: ${cart.length}</p>
+                        <p class="text-xl font-bold mt-2">Total Amount: $${total.toFixed(2)}</p>
+                    </div>
+                `;
+                
+                totalPriceElement.textContent = total.toFixed(2);
+                document.getElementById("paypal-amount").value = total.toFixed(2);
+            } else {
+                cartItemsContainer.innerHTML = `
+                    <div class="text-center py-4">
+                        <p class="text-gray-600">Your cart is empty.</p>
+                        <a href="index.html" class="text-blue-500 hover:underline mt-2 inline-block">
+                            Continue Shopping
+                        </a>
+                    </div>
+                `;
+            }
+
+            document.getElementById("checkout-form").addEventListener("submit", (event) => {
+                event.preventDefault();
+                const totalAmount = document.getElementById("paypal-amount").value;
+
+                if (totalAmount > 0) {
+                    const paypalURL = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=your-paypal-email@example.com&amount=${totalAmount}&currency_code=USD&item_name=TomeTrove%20Books&return=http://localhost:5500/success.html&cancel_return=http://localhost:5500/cart.html`;
+                    // Open PayPal in a new tab
+                    window.open(paypalURL, '_blank');
+                } else {
+                    alert("Your cart is empty. Please add items before proceeding.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

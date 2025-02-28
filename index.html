@@ -57,6 +57,94 @@
         .header-buttons a {
             font-size: 1.25rem; /* Increasing the font size for header buttons */
         }
+        .floating-cart {
+            position: fixed;
+            top: 100px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.85); /* More transparent background */
+            padding: 1rem;
+            border-radius: 0.5rem 0 0 0.5rem;
+            box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-width: 300px;
+            max-height: 80vh; /* Limit height relative to viewport */
+            overflow-y: auto;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .floating-cart.collapsed {
+            transform: translateX(100%); /* Completely hide the cart */
+        }
+
+        .cart-toggle {
+            position: absolute;
+            left: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #3B82F6;
+            color: white;
+            width: 30px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 5px 0 0 5px;
+            transition: background-color 0.3s ease;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .cart-toggle:hover {
+            background: #2563EB;
+        }
+
+        .cart-toggle-button {
+            position: fixed;
+            top: 60px; /* Changed from 100px to place it above the floating cart */
+            right: 0;
+            background: #3B82F6;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem 0 0 0.5rem;
+            cursor: pointer;
+            z-index: 1001; /* Increased z-index to ensure it's above the floating cart */
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cart-toggle-button:hover {
+            background: #2563EB;
+        }
+
+        .floating-cart-item {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 0.5rem 0;
+        }
+
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #10B981;
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            animation: slideIn 0.5s ease-out, fadeOut 0.5s ease-in 2s forwards;
+            z-index: 1001;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -69,7 +157,158 @@
                     }
                 });
             });
+
+            const genreSelect = document.getElementById('genre');
+            const bookContainers = document.querySelectorAll('.book-container');
+
+            genreSelect.addEventListener('change', function() {
+                const selectedGenre = this.value;
+                bookContainers.forEach(container => {
+                    if (selectedGenre === 'all' || container.dataset.genre === selectedGenre) {
+                        container.style.display = 'block';
+                    } else {
+                        container.style.display = 'none';
+                    }
+                });
+            });
+
+            const addToCartButtons = document.querySelectorAll('.add-to-cart');
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const bookContainer = this.closest('.book-container');
+                    const bookTitle = bookContainer.querySelector('h3').innerText;
+                    const bookPrice = bookContainer.querySelector('.text-lg.font-bold').innerText;
+                    const bookQuantity = parseInt(bookContainer.querySelector('input[type="number"]').value);
+
+                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    const existingItemIndex = cart.findIndex(item => item.title === bookTitle);
+                    
+                    if (existingItemIndex !== -1) {
+                        const newQuantity = parseInt(cart[existingItemIndex].quantity) + bookQuantity;
+                        if (newQuantity > 15) {
+                            showToast('Cannot purchase more than 15 copies of the same book', true);
+                            return;
+                        }
+                        cart[existingItemIndex].quantity = newQuantity;
+                    } else {
+                        if (bookQuantity > 15) {
+                            showToast('Cannot purchase more than 15 copies of the same book', true);
+                            return;
+                        }
+                        cart.push({
+                            title: bookTitle,
+                            price: bookPrice,
+                            quantity: bookQuantity
+                        });
+                    }
+                    
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    showToast('Item Added to Cart');
+                    updateFloatingCart();
+                });
+            });
+
+            function updateFloatingCart() {
+                const floatingCart = document.getElementById('floating-cart');
+                const floatingCartItems = document.getElementById('floating-cart-items');
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                const wasCollapsed = floatingCart.classList.contains('collapsed');
+
+                // Always show the floating cart container
+                floatingCart.classList.remove('hidden');
+                
+                // Preserve collapsed state
+                if (wasCollapsed) {
+                    floatingCart.classList.add('collapsed');
+                }
+
+                if (cart.length > 0) {
+                    floatingCartItems.innerHTML = cart.map((item, index) => `
+                        <div class="floating-cart-item flex justify-between items-center">
+                            <div>
+                                <p class="font-semibold">${item.title}</p>
+                                <p class="text-sm text-gray-600">Price: ${item.price}</p>
+                                <div class="flex items-center mt-1">
+                                    <button onclick="updateFloatingCartQuantity(${index}, -1)" 
+                                        class="bg-gray-200 px-2 py-1 rounded-l hover:bg-gray-300 transition">-</button>
+                                    <span class="px-3 py-1 bg-gray-100">${item.quantity}</span>
+                                    <button onclick="updateFloatingCartQuantity(${index}, 1)" 
+                                        class="bg-gray-200 px-2 py-1 rounded-r hover:bg-gray-300 transition">+</button>
+                                </div>
+                            </div>
+                            <button onclick="removeFloatingCartItem(${index})" 
+                                class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-700 transition">
+                                Remove
+                            </button>
+                        </div>
+                    `).join('');
+                } else {
+                    floatingCartItems.innerHTML = `
+                        <div class="text-center py-4 text-gray-500">
+                            Nothing in Cart
+                        </div>
+                    `;
+                }
+            }
+
+            function updateFloatingCartQuantity(index, change) {
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                let newQuantity = parseInt(cart[index].quantity) + change;
+                
+                if (newQuantity > 0 && newQuantity <= 15) {
+                    cart[index].quantity = newQuantity;
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    updateFloatingCart();
+                } else if (newQuantity > 15) {
+                    showToast('Cannot purchase more than 15 copies of the same book', true);
+                }
+            }
+
+            function removeFloatingCartItem(index) {
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                cart.splice(index, 1);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateFloatingCart();
+            }
+
+            function showToast(message, isWarning = false) {
+                const toast = document.createElement('div');
+                toast.className = `toast-notification ${isWarning ? 'bg-red-500' : 'bg-green-500'}`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.remove();
+                }, 2500);
+            }
+
+            // Add this to make the remove function globally available
+            window.removeFloatingCartItem = removeFloatingCartItem;
+            window.updateFloatingCartQuantity = updateFloatingCartQuantity;
+
+            // Update floating cart when page loads
+            updateFloatingCart();
+
+            // Initialize cart in collapsed state
+            const floatingCart = document.getElementById('floating-cart');
+            const toggleIcon = document.getElementById('cart-toggle-icon');
+            floatingCart.classList.add('collapsed');
+            toggleIcon.textContent = '‹';
         });
+
+        function toggleCart() {
+            const floatingCart = document.getElementById('floating-cart');
+            const toggleButton = document.getElementById('cart-toggle-button');
+            const isCollapsed = floatingCart.classList.contains('collapsed');
+            
+            floatingCart.classList.toggle('collapsed');
+            toggleButton.innerHTML = isCollapsed ? 
+                '<span>❌</span> Hide Cart' : 
+                '<span>🛒</span> Show Cart';
+        }
+
+        // Make the function globally available
+        window.toggleCart = toggleCart;
     </script>
 </head>
 <body class="bg-gray-100 text-gray-900">
@@ -86,6 +325,23 @@
         </nav>
     </header>
     
+    <!-- Add this right after the header -->
+    <button id="cart-toggle-button" class="cart-toggle-button" onclick="toggleCart()">
+        <span>🛒</span> Show Cart
+    </button>
+
+    <div id="floating-cart" class="floating-cart collapsed">
+        <h3 class="text-lg font-semibold mb-2">Current Cart</h3>
+        <div id="floating-cart-items">
+            <!-- Cart items will be displayed here -->
+        </div>
+        <div class="mt-4">
+            <a href="cart.html" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition inline-block">
+                View Cart
+            </a>
+        </div>
+    </div>
+
     <section id="home" class="p-8 text-center bg-cover bg-center h-screen" style="background-image: url('https://pin.it/6QUAk2zOE');">
         <div class="bg-black bg-opacity-50 p-16 rounded-lg flex flex-col justify-center items-center h-full">
             <h2 class="text-6xl font-bold text-white">Welcome to <span class="header-title">TomeTrove</span></h2>
@@ -96,9 +352,25 @@
     </section>
     
     <section id="books" class="p-8">
-        <h2 class="text-2xl font-semibold">Browse Our Collection</h2>
+        <div class="bg-gray-200 p-4 rounded-lg mb-4">
+            <h2 class="text-2xl font-semibold">Browse Our Collection</h2>
+        </div>
+        <div class="bg-gray-300 p-4 rounded-lg mb-4">
+            <label for="genre" class="block text-lg font-semibold">Select Genre:</label>
+            <select id="genre" name="genre" class="w-full p-2 border rounded-lg mt-2">
+                <option value="all">All</option>
+                <option value="fantasy">Fantasy</option>
+                <option value="sci-fi">Sci-Fi</option>
+                <option value="mystery">Mystery</option>
+                <option value="romance">Romance</option>
+                <option value="comedy">Comedy</option>
+                <option value="horror">Horror</option>
+                <option value="historical-fiction">Historical Fiction</option>
+                <option value="self-help">Self Help</option>
+            </select>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
-            <div class="book-container">
+            <div class="book-container" data-genre="fantasy">
                 <div class="book" style="background-image: url('images/FellowshipBling.jpg');"></div>
                 <div class="book-info">
                     <h3 class="text-xl font-semibold mt-2">The Fellowship of the Bling</h3>
@@ -112,7 +384,7 @@
                     <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
             </div>
-            <div class="book-container">
+            <div class="book-container" data-genre="sci-fi">
                 <div class="book" style="background-image: url('images/Hitchhiker.jpg');"></div>
                 <div class="book-info">
                     <h3 class="text-xl font-semibold mt-2">The Hitchhiker's Guide to Corporate Meetings</h3>
@@ -126,7 +398,7 @@
                     <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
             </div>
-            <div class="book-container">
+            <div class="book-container" data-genre="mystery">
                 <div class="book" style="background-image: url('images/SherlockGnome.jpg');"></div>
                 <div class="book-info">
                     <h3 class="text-xl font-semibold mt-2">Sherlock Gnomes and the Case of the Missing Garden Hose</h3>
@@ -140,7 +412,7 @@
                     <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
             </div>
-            <div class="book-container">
+            <div class="book-container" data-genre="romance">
                 <div class="book" style="background-image: url('images/PrideandPrejudice.jpg');"></div>
                 <div class="book-info">
                     <h3 class="text-xl font-semibold mt-2">Pride and Extra Prejudice</h3>
@@ -154,7 +426,7 @@
                     <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
             </div>
-            <div class="book-container">
+            <div class="book-container" data-genre="comedy">
                 <div class="book" style="background-image: url('images/HarryPlotter.jpg');"></div>
                 <div class="book-info">
                     <h3 class="text-xl font-semibold mt-2">Harry Plotter and the Overly Complicated Narrative</h3>
@@ -168,7 +440,7 @@
                     <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
             </div>
-            <div class="book-container">
+            <div class="book-container" data-genre="horror">
                 <div class="book" style="background-image: url('images/WalkingDad.jpg');"></div>
                 <div class="book-info">
                     <h3 class="text-xl font-semibold mt-2">The Walking Dad</h3>
@@ -182,7 +454,7 @@
                     <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
             </div>
-            <div class="book-container">
+            <div class="book-container" data-genre="historical-fiction">
                 <div class="book" style="background-image: url('images/BritishBakeOff.jpg');"></div>
                 <div class="book-info">
                     <h3 class="text-xl font-semibold mt-2">The Great British Bake-Off: The War of the Scones</h3>
@@ -196,7 +468,7 @@
                     <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
             </div>
-            <div class="book-container">
+            <div class="book-container" data-genre="self-help">
                 <div class="book" style="background-image: url('images/InfluenceAlgo.jpg');"></div>
                 <div class="book-info">
                     <h3 class="text-xl font-semibold mt-2">How to Win Friends and Influence Algorithms</h3>
@@ -216,16 +488,16 @@
     <section id="about" class="p-8 text-center">
         <div class="about-box">
             <h2 class="text-2x1 font-semibold"><b>About Us</b></h2>
-            <p class="text-lg italic">Welcome to <span class="header-title">TomeTrove</span>, where stories come to life and knowledge is just a click away. We are more than just an online bookstore; we are a community of book lovers, a sanctuary for avid readers, and a gateway to endless adventures through the written word. <span class="header-title">TomeTrove</span> is dedicated to bringing literature lovers a diverse collection of books from around the world.</p>
+            <p class="text-lg italic">Welcome to TomeTrove, where stories come to life and knowledge is just a click away. We are more than just an online bookstore; we are a community of book lovers, a sanctuary for avid readers, and a gateway to endless adventures through the written word. TomeTrove is dedicated to bringing literature lovers a diverse collection of books from around the world.</p>
             <p class="text-lg italic">Our mission is to make reading accessible, enjoyable, and enriching for everyone. Whether you're a seasoned bibliophile or just starting your literary journey, we have something for you. From bestsellers to hidden gems, from timeless classics to contemporary masterpieces, our curated selection caters to all tastes and preferences.</p>
-            <p class="text-lg italic">At <span class="header-title">TomeTrove</span>, we believe in the power of stories to inspire, educate, and entertain. We are committed to fostering a love for reading and supporting authors, publishers, and the literary community. Join us on this exciting adventure as we explore the boundless world of books together.</p>
-            <p class="text-lg italic">Thank you for choosing <span class="header-title">TomeTrove</span> as your trusted source for books. We look forward to being a part of your reading journey and helping you discover the magic of literature.</p>
-            <p class="text-lg italic"><h2><b>Happy reading at <span class="header-title">TomeTrove </span>! </b></h2></p>
+            <p class="text-lg italic">At TomeTrove, we believe in the power of stories to inspire, educate, and entertain. We are committed to fostering a love for reading and supporting authors, publishers, and the literary community. Join us on this exciting adventure as we explore the boundless world of books together.</p>
+            <p class="text-lg italic">Thank you for choosing TomeTrove as your trusted source for books. We look forward to being a part of your reading journey and helping you discover the magic of literature.</p>
+            <p class="text-lg italic"><h2><b>Happy reading at TomeTrove! </b></h2></p>
         </div>
     </section>
     
     <section id="cart" class="p-8 text-center">
-        <p>&copy; 2025 <span class="header-title">TomeTrove</span>. All rights reserved.</p>
+        <p>&copy; 2025 TomeTrove. All rights reserved.</p>
     </section>
 </body>
 </html>

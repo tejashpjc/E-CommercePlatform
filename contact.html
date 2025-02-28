@@ -31,27 +31,69 @@
         <p class="text-lg mt-4">We’d love to hear from you! Reach out to us with any questions or feedback.</p>
 
         <div class="mt-6">
-            <p class="text-xl"><strong>Email:</strong> support@tometrove.com</p>
+            <p class="text-xl"><strong>Email:</strong> trovetome@gmail.com            </p>
             <p class="text-xl mt-2"><strong>Phone:</strong> (123) 456-7890</p>
             <p class="text-xl mt-2"><strong>Address:</strong> 123 Book St, Phoenix, AZ</p>
         </div>
 
-        <form class="mt-8 max-w-lg mx-auto bg-white p-6 shadow-lg rounded-lg">
-            <label class="block text-lg font-semibold">Your Name</label>
-            <input type="text" class="w-full p-3 border rounded-lg mt-2" placeholder="John Doe" required>
+        <form id="contactForm" class="mt-8 max-w-lg mx-auto bg-white p-6 shadow-lg rounded-lg" onsubmit="sendEmail(event)">
+            <div id="formFields">
+                <label class="block text-lg font-semibold">Your Name</label>
+                <input type="text" id="name" class="w-full p-3 border rounded-lg mt-2" placeholder="John Doe" required>
 
-            <label class="block text-lg font-semibold mt-4">Your Email</label>
-            <input type="email" class="w-full p-3 border rounded-lg mt-2" placeholder="email@example.com" required>
+                <label class="block text-lg font-semibold mt-4">Your Email</label>
+                <input type="email" id="email" class="w-full p-3 border rounded-lg mt-2" placeholder="email@example.com" required>
 
-            <label class="block text-lg font-semibold mt-4">Message</label>
-            <textarea class="w-full p-3 border rounded-lg mt-2" rows="5" placeholder="Write your message here..." required></textarea>
+                <label class="block text-lg font-semibold mt-4">Message</label>
+                <textarea id="message" class="w-full p-3 border rounded-lg mt-2" rows="5" placeholder="Write your message here..." required></textarea>
 
-            <button class="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">Send Message</button>
+                <button type="submit" class="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">Send Message</button>
+            </div>
+            
+            <div id="confirmationMessage" class="hidden text-center py-8">
+                <p class="text-2xl text-green-600 font-bold">Message Sent!</p>
+                <p class="text-lg text-gray-600 mt-2">Our team will contact you shortly!</p>
+                <button onclick="resetForm()" class="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">Send Another Message</button>
+            </div>
         </form>
     </section>
 
     <footer class="bg-blue-600 text-white p-4 text-center mt-8">
         <p>&copy; 2025 TomeTrove. All rights reserved.</p>
     </footer>
+
+    <script src="https://smtpjs.com/v3/smtp.js"></script>
+    <script>
+    function sendEmail(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('message').value;
+
+        Email.send({
+            SecureToken: "YOUR_SECURE_TOKEN", // Get this from SmtpJS
+            To: 'trovetome@gmail.com', // Your email address
+            From: email,
+            Subject: `New Contact Form Message from ${name}`,
+            Body: `
+                Name: ${name}<br>
+                Email: ${email}<br>
+                Message: ${message}
+            `
+        }).then(
+            message => {
+                document.getElementById('formFields').classList.add('hidden');
+                document.getElementById('confirmationMessage').classList.remove('hidden');
+            }
+        );
+    }
+
+    function resetForm() {
+        document.getElementById('contactForm').reset();
+        document.getElementById('formFields').classList.remove('hidden');
+        document.getElementById('confirmationMessage').classList.add('hidden');
+    }
+    </script>
 </body>
 </html>
