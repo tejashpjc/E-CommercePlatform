@@ -7,31 +7,75 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="script.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap'); /* Importing a cursive font */
+
         body {
             background: linear-gradient(to bottom, #1E3A8A, #FFFFFF, #D4A373);
+        }
+        .book-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+        .book {
+            background-size: cover;
+            background-position: center;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            height: 300px; /* Adjust the height as needed */
         }
         .book:hover {
             transform: scale(1.05);
             transition: transform 0.3s ease-in-out;
         }
+        .book-info {
+            background: rgba(255, 255, 255, 0.9); /* White background with some transparency */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: -1rem; /* Adjust margin to overlap the image */
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
         .about-box {
-            background: rgba(211, 211, 211, 0.8); /* Faded gray color */
+            background: rgba(211, 211, 211, 0.8); 
             padding: 2rem;
-            border-radius: 1rem; /* Increased border-radius for rounder edges */
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Added box-shadow for floating effect */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
         }
         .about-box h2 {
-            font-size: 2.5rem; /* Bigger font size for "About Us" */
+            font-size: 2.5rem; 
         }
         .about-box p {
-            font-style: italic; /* Italicize all other text */
+            font-style: italic; /* Italicize text */
+        }
+        .header-title, .header-title a {
+            font-family: 'Dancing Script', cursive; /* Applying the cursive font */
+            font-size: 3rem; /* Making the text larger */
+        }
+        .header-buttons a {
+            font-size: 1.25rem; /* Increasing the font size for header buttons */
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const quantityInputs = document.querySelectorAll('input[type="number"]');
+            quantityInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.value > 15) {
+                        alert('You cannot choose more than the amount in stock (Currently: 15). *This is subject to change, so please check back later.*');
+                        this.value = 15;
+                    }
+                });
+            });
+        });
+    </script>
 </head>
 <body class="bg-gray-100 text-gray-900">
     <header class="bg-blue-600 p-4 text-white flex justify-between items-center">
-        <h1 class="text-2xl font-bold"><a href="index.html">TomeTrove</a></h1>
-        <nav>
+        <h1 class="header-title"><a href="index.html">TomeTrove</a></h1>
+        <nav class="header-buttons">
             <ul class="flex space-x-4">
                 <li><a href="#home" class="hover:underline">Home</a></li>
                 <li><a href="#books" class="hover:underline">Books</a></li>
@@ -44,7 +88,7 @@
     
     <section id="home" class="p-8 text-center bg-cover bg-center h-screen" style="background-image: url('https://pin.it/6QUAk2zOE');">
         <div class="bg-black bg-opacity-50 p-16 rounded-lg flex flex-col justify-center items-center h-full">
-            <h2 class="text-6xl font-bold text-white">Welcome to TomeTrove</h2>
+            <h2 class="text-6xl font-bold text-white">Welcome to <span class="header-title">TomeTrove</span></h2>
             <p class="text-3xl mt-4 text-gray-200">Your one-stop destination for books of all genres.</p>
             <a href="#books" class="mt-6 inline-block bg-blue-500 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition">Browse Books</a>
             <a href="contact.html" class="mt-6 inline-block bg-blue-500 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition">Contact Us</a>
@@ -54,93 +98,117 @@
     <section id="books" class="p-8">
         <h2 class="text-2xl font-semibold">Browse Our Collection</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
-            <div class="book bg-white p-4 shadow-lg rounded-lg hover:scale-105 transition transform duration-300">
-                <img src="placeholder.jpg" alt="Book Cover" class="w-full h-40 object-cover">
-                <h3 class="text-xl font-semibold mt-2">Book Title 1</h3>
-                <p class="text-gray-600">Author Name</p>
-                <p class="text-lg font-bold mt-1">$XX.XX</p>
-                <div class="mt-2 flex items-center">
-                    <label for="quantity1" class="mr-2">Quantity:</label>
-                    <input type="number" id="quantity1" name="quantity1" min="1" value="1" class="w-16 p-1 border rounded">
+            <div class="book-container">
+                <div class="book" style="background-image: url('images/FellowshipBling.jpg');"></div>
+                <div class="book-info">
+                    <h3 class="text-xl font-semibold mt-2">The Fellowship of the Bling</h3>
+                    <p class="text-gray-900">Author Name: J.R.R. Kohl’s</p>
+                    <p class="text-lg font-bold mt-1">$14.95</p>
+                    <p class="text-gray-900">A tale of fashion-obsessed elves and dwarves on a quest for the ultimate ring.</p>
+                    <div class="mt-2 flex items-center">
+                        <label for="quantity1" class="mr-2">Quantity: 15</label>
+                        <input type="number" id="quantity1" name="quantity1" min="1" max="15" value="1" class="w-16 p-1 border rounded">
+                    </div>
+                    <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
-                <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
             </div>
-            <div class="book bg-white p-4 shadow-lg rounded-lg hover:scale-105 transition transform duration-300">
-                <img src="placeholder.jpg" alt="Book Cover" class="w-full h-40 object-cover">
-                <h3 class="text-xl font-semibold mt-2">Book Title 2</h3>
-                <p class="text-gray-600">Author Name</p>
-                <p class="text-lg font-bold mt-1">$XX.XX</p>
-                <div class="mt-2 flex items-center">
-                    <label for="quantity2" class="mr-2">Quantity:</label>
-                    <input type="number" id="quantity2" name="quantity2" min="1" value="1" class="w-16 p-1 border rounded">
+            <div class="book-container">
+                <div class="book" style="background-image: url('images/Hitchhiker.jpg');"></div>
+                <div class="book-info">
+                    <h3 class="text-xl font-semibold mt-2">The Hitchhiker's Guide to Corporate Meetings</h3>
+                    <p class="text-gray-900">Author's Name: Douglas Spreadsheet</p>
+                    <p class="text-lg font-bold mt-1">$11.50</p>
+                    <p class="text-gray-900">An intergalactic survival guide for endless, pointless business calls.</p>
+                    <div class="mt-2 flex items-center">
+                        <label for="quantity2" class="mr-2">Quantity: 15</label>
+                        <input type="number" id="quantity2" name="quantity2" min="1" max="15" value="1" class="w-16 p-1 border rounded">
+                    </div>
+                    <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
-                <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
             </div>
-            <div class="book bg-white p-4 shadow-lg rounded-lg hover:scale-105 transition transform duration-300">
-                <img src="placeholder.jpg" alt="Book Cover" class="w-full h-40 object-cover">
-                <h3 class="text-xl font-semibold mt-2">Book Title 3</h3>
-                <p class="text-gray-600">Author Name</p>
-                <p class="text-lg font-bold mt-1">$XX.XX</p>
-                <div class="mt-2 flex items-center">
-                    <label for="quantity3" class="mr-2">Quantity:</label>
-                    <input type="number" id="quantity3" name="quantity3" min="1" value="1" class="w-16 p-1 border rounded">
+            <div class="book-container">
+                <div class="book" style="background-image: url('images/SherlockGnome.jpg');"></div>
+                <div class="book-info">
+                    <h3 class="text-xl font-semibold mt-2">Sherlock Gnomes and the Case of the Missing Garden Hose</h3>
+                    <p class="text-gray-900">Author's Name: Sir Arthur Garden Doyle</p>
+                    <p class="text-lg font-bold mt-1">$19.99</p>
+                    <p class="text-gray-900">A tiny detective solves the biggest backyard crimes (This time it is a Missing Garden Hose).</p>
+                    <div class="mt-2 flex items-center">
+                        <label for="quantity3" class="mr-2">Quantity: 15</label>
+                        <input type="number" id="quantity3" name="quantity3" min="1" max="15" value="1" class="w-16 p-1 border rounded">
+                    </div>
+                    <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
-                <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
             </div>
-            <div class="book bg-white p-4 shadow-lg rounded-lg hover:scale-105 transition transform duration-300">
-                <img src="placeholder.jpg" alt="Book Cover" class="w-full h-40 object-cover">
-                <h3 class="text-xl font-semibold mt-2">Book Title 4</h3>
-                <p class="text-gray-600">Author Name</p>
-                <p class="text-lg font-bold mt-1">$XX.XX</p>
-                <div class="mt-2 flex items-center">
-                    <label for="quantity4" class="mr-2">Quantity:</label>
-                    <input type="number" id="quantity4" name="quantity4" min="1" value="1" class="w-16 p-1 border rounded">
+            <div class="book-container">
+                <div class="book" style="background-image: url('images/PrideandPrejudice.jpg');"></div>
+                <div class="book-info">
+                    <h3 class="text-xl font-semibold mt-2">Pride and Extra Prejudice</h3>
+                    <p class="text-gray-900">Author's Name: Jane Ostentatious</p>
+                    <p class="text-lg font-bold mt-1">$9.99</p>
+                    <p class="text-gray-900">A love story complicated by an excess of judgment and unsolicited opinions.</p>
+                    <div class="mt-2 flex items-center">
+                        <label for="quantity4" class="mr-2">Quantity: 15</label>
+                        <input type="number" id="quantity4" name="quantity4" min="1" max="15" value="1" class="w-16 p-1 border rounded">
+                    </div>
+                    <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
-                <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
             </div>
-            <div class="book bg-white p-4 shadow-lg rounded-lg hover:scale-105 transition transform duration-300">
-                <img src="placeholder.jpg" alt="Book Cover" class="w-full h-40 object-cover">
-                <h3 class="text-xl font-semibold mt-2">Book Title 5</h3>
-                <p class="text-gray-600">Author Name</p>
-                <p class="text-lg font-bold mt-1">$XX.XX</p>
-                <div class="mt-2 flex items-center">
-                    <label for="quantity5" class="mr-2">Quantity:</label>
-                    <input type="number" id="quantity5" name="quantity5" min="1" value="1" class="w-16 p-1 border rounded">
+            <div class="book-container">
+                <div class="book" style="background-image: url('images/HarryPlotter.jpg');"></div>
+                <div class="book-info">
+                    <h3 class="text-xl font-semibold mt-2">Harry Plotter and the Overly Complicated Narrative</h3>
+                    <p class="text-gray-900">Author's Name: J.K. LOL-ing</p>
+                    <p class="text-lg font-bold mt-1">$35.99</p>
+                    <p class="text-gray-900">A wizard who can’t keep his storyline straight(Not even the wand!).</p>
+                    <div class="mt-2 flex items-center">
+                        <label for="quantity5" class="mr-2">Quantity: 15</label>
+                        <input type="number" id="quantity5" name="quantity5" min="1" max="15" value="1" class="w-16 p-1 border rounded">
+                    </div>
+                    <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
-                <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
             </div>
-            <div class="book bg-white p-4 shadow-lg rounded-lg hover:scale-105 transition transform duration-300">
-                <img src="placeholder.jpg" alt="Book Cover" class="w-full h-40 object-cover">
-                <h3 class="text-xl font-semibold mt-2">Book Title 6</h3>
-                <p class="text-gray-600">Author Name</p>
-                <p class="text-lg font-bold mt-1">$XX.XX</p>
-                <div class="mt-2 flex items-center">
-                    <label for="quantity6" class="mr-2">Quantity:</label>
-                    <input type="number" id="quantity6" name="quantity6" min="1" value="1" class="w-16 p-1 border rounded">
+            <div class="book-container">
+                <div class="book" style="background-image: url('images/WalkingDad.jpg');"></div>
+                <div class="book-info">
+                    <h3 class="text-xl font-semibold mt-2">The Walking Dad</h3>
+                    <p class="text-gray-900">Author's Name: Stephen Sleepless</p>
+                    <p class="text-lg font-bold mt-1">$12.75</p>
+                    <p class="text-gray-900">A spine-chilling tale of a sleep-deprived father wandering the house at 3 AM.</p>
+                    <div class="mt-2 flex items-center">
+                        <label for="quantity6" class="mr-2">Quantity: 15</label>
+                        <input type="number" id="quantity6" name="quantity6" min="1" max="15" value="1" class="w-16 p-1 border rounded">
+                    </div>
+                    <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
-                <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
             </div>
-            <div class="book bg-white p-4 shadow-lg rounded-lg hover:scale-105 transition transform duration-300">
-                <img src="placeholder.jpg" alt="Book Cover" class="w-full h-40 object-cover">
-                <h3 class="text-xl font-semibold mt-2">Book Title 7</h3>
-                <p class="text-gray-600">Author Name</p>
-                <p class="text-lg font-bold mt-1">$XX.XX</p>
-                <div class="mt-2 flex items-center">
-                    <label for="quantity7" class="mr-2">Quantity:</label>
-                    <input type="number" id="quantity7" name="quantity7" min="1" value="1" class="w-16 p-1 border rounded">
+            <div class="book-container">
+                <div class="book" style="background-image: url('images/BritishBakeOff.jpg');"></div>
+                <div class="book-info">
+                    <h3 class="text-xl font-semibold mt-2">The Great British Bake-Off: The War of the Scones</h3>
+                    <p class="text-gray-900">Author's Name: Mary Cherry Berry</p>
+                    <p class="text-lg font-bold mt-1">$25.19</p>
+                    <p class="text-gray-900">A pastry-fueled battle for the English throne. The Monarchy will be mine!</p>
+                    <div class="mt-2 flex items-center">
+                        <label for="quantity7" class="mr-2">Quantity: 15</label>
+                        <input type="number" id="quantity7" name="quantity7" min="1" max="15" value="1" class="w-16 p-1 border rounded">
+                    </div>
+                    <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
-                <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
             </div>
-            <div class="book bg-white p-4 shadow-lg rounded-lg hover:scale-105 transition transform duration-300">
-                <img src="placeholder.jpg" alt="Book Cover" class="w-full h-40 object-cover">
-                <h3 class="text-xl font-semibold mt-2">Book Title 8</h3>
-                <p class="text-gray-600">Author Name</p>
-                <p class="text-lg font-bold mt-1">$XX.XX</p>
-                <div class="mt-2 flex items-center">
-                    <label for="quantity8" class="mr-2">Quantity:</label>
-                    <input type="number" id="quantity8" name="quantity8" min="1" value="1" class="w-16 p-1 border rounded">
+            <div class="book-container">
+                <div class="book" style="background-image: url('images/InfluenceAlgo.jpg');"></div>
+                <div class="book-info">
+                    <h3 class="text-xl font-semibold mt-2">How to Win Friends and Influence Algorithms</h3>
+                    <p class="text-gray-900">Author's Name: Mark Influencerberg</p>
+                    <p class="text-lg font-bold mt-1">$3.59</p>
+                    <p class="text-gray-900">A guide to going viral without selling your soul.</p>
+                    <div class="mt-2 flex items-center">
+                        <label for="quantity8" class="mr-2">Quantity: 15</label>
+                        <input type="number" id="quantity8" name="quantity8" min="1" max="15" value="1" class="w-16 p-1 border rounded">
+                    </div>
+                    <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
                 </div>
-                <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded add-to-cart">Add to Cart</button>
             </div>
         </div>
     </section>
@@ -148,16 +216,16 @@
     <section id="about" class="p-8 text-center">
         <div class="about-box">
             <h2 class="text-2x1 font-semibold"><b>About Us</b></h2>
-            <p class="text-lg italic">Welcome to TomeTrove, where stories come to life and knowledge is just a click away. We are more than just an online bookstore; we are a community of book lovers, a sanctuary for avid readers, and a gateway to endless adventures through the written word. TomeTrove is dedicated to bringing literature lovers a diverse collection of books from around the world.</p>
+            <p class="text-lg italic">Welcome to <span class="header-title">TomeTrove</span>, where stories come to life and knowledge is just a click away. We are more than just an online bookstore; we are a community of book lovers, a sanctuary for avid readers, and a gateway to endless adventures through the written word. <span class="header-title">TomeTrove</span> is dedicated to bringing literature lovers a diverse collection of books from around the world.</p>
             <p class="text-lg italic">Our mission is to make reading accessible, enjoyable, and enriching for everyone. Whether you're a seasoned bibliophile or just starting your literary journey, we have something for you. From bestsellers to hidden gems, from timeless classics to contemporary masterpieces, our curated selection caters to all tastes and preferences.</p>
-            <p class="text-lg italic">At TomeTrove, we believe in the power of stories to inspire, educate, and entertain. We are committed to fostering a love for reading and supporting authors, publishers, and the literary community. Join us on this exciting adventure as we explore the boundless world of books together.</p>
-            <p class="text-lg italic">Thank you for choosing TomeTrove as your trusted source for books. We look forward to being a part of your reading journey and helping you discover the magic of literature.</p>
-            <p class="text-lg italic"><h2><b>Happy reading!</b></h2></p>
+            <p class="text-lg italic">At <span class="header-title">TomeTrove</span>, we believe in the power of stories to inspire, educate, and entertain. We are committed to fostering a love for reading and supporting authors, publishers, and the literary community. Join us on this exciting adventure as we explore the boundless world of books together.</p>
+            <p class="text-lg italic">Thank you for choosing <span class="header-title">TomeTrove</span> as your trusted source for books. We look forward to being a part of your reading journey and helping you discover the magic of literature.</p>
+            <p class="text-lg italic"><h2><b>Happy reading at <span class="header-title">TomeTrove </span>! </b></h2></p>
         </div>
     </section>
     
     <section id="cart" class="p-8 text-center">
-        <p>&copy; 2025 TomeTrove. All rights reserved.</p>
+        <p>&copy; 2025 <span class="header-title">TomeTrove</span>. All rights reserved.</p>
     </section>
 </body>
 </html>
