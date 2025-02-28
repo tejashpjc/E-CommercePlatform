@@ -53,7 +53,9 @@
             <div id="confirmationMessage" class="hidden text-center py-8">
                 <p class="text-2xl text-green-600 font-bold">Message Sent!</p>
                 <p class="text-lg text-gray-600 mt-2">Our team will contact you shortly!</p>
-                <button onclick="resetForm()" class="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">Send Another Message</button>
+                <button onclick="goToHome()" class="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                    Back to Home
+                </button>
             </div>
         </form>
     </section>
@@ -89,10 +91,8 @@
         );
     }
 
-    function resetForm() {
-        document.getElementById('contactForm').reset();
-        document.getElementById('formFields').classList.remove('hidden');
-        document.getElementById('confirmationMessage').classList.add('hidden');
+    function goToHome() {
+        window.location.href = "index.html";
     }
     </script>
 </body>
