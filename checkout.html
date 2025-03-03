@@ -27,21 +27,84 @@
         </nav>
     </header>
 
-    <section class="p-8 max-w-3xl mx-auto bg-white shadow-lg rounded-lg">
+    <section class="p-8 max-w-3xl mx-auto">
         <h2 class="text-3xl font-semibold text-center mb-6">Checkout</h2>
         
         <!-- Cart Summary -->
-        <div id="cart-summary" class="border p-4 rounded-lg">
-            <h3 class="text-2xl font-semibold mb-2">Order Summary</h3>
+        <div id="cart-summary" class="bg-white p-6 shadow-lg rounded-lg mb-8">
+            <h3 class="text-2xl font-semibold mb-4">Order Summary</h3>
             <div id="cart-items" class="mb-4">
                 <p class="text-gray-600">Your cart is empty.</p>
             </div>
             <p class="text-lg font-bold">Total: $<span id="total-price">0.00</span></p>
         </div>
 
-        <!-- Checkout Form -->
-        <form id="checkout-form" class="mt-6">
-            <h3 class="text-2xl font-semibold mb-2">Billing Details</h3>
+        <!-- State Selection with visual separation -->
+        <div class="bg-white p-6 shadow-lg rounded-lg mb-8">
+            <h3 class="text-2xl font-semibold mb-2">Select Your State</h3>
+            <p class="text-gray-600 mb-4">Please select your state for tax calculation</p>
+            <select id="state" class="w-full p-3 border rounded-lg mt-2" required 
+                oninvalid="this.setCustomValidity('Please select your state')" 
+                oninput="this.setCustomValidity('')">
+                <option value="">Select State</option>
+                <option value="AL">Alabama</option>
+                <option value="AK">Alaska</option>
+                <option value="AZ">Arizona</option>
+                <option value="AR">Arkansas</option>
+                <option value="CA">California</option>
+                <option value="CO">Colorado</option>
+                <option value="CT">Connecticut</option>
+                <option value="DE">Delaware</option>
+                <option value="FL">Florida</option>
+                <option value="GA">Georgia</option>
+                <option value="HI">Hawaii</option>
+                <option value="ID">Idaho</option>
+                <option value="IL">Illinois</option>
+                <option value="IN">Indiana</option>
+                <option value="IA">Iowa</option>
+                <option value="KS">Kansas</option>
+                <option value="KY">Kentucky</option>
+                <option value="LA">Louisiana</option>
+                <option value="ME">Maine</option>
+                <option value="MD">Maryland</option>
+                <option value="MA">Massachusetts</option>
+                <option value="MI">Michigan</option>
+                <option value="MN">Minnesota</option>
+                <option value="MS">Mississippi</option>
+                <option value="MO">Missouri</option>
+                <option value="MT">Montana</option>
+                <option value="NE">Nebraska</option>
+                <option value="NV">Nevada</option>
+                <option value="NH">New Hampshire</option>
+                <option value="NJ">New Jersey</option>
+                <option value="NM">New Mexico</option>
+                <option value="NY">New York</option>
+                <option value="NC">North Carolina</option>
+                <option value="ND">North Dakota</option>
+                <option value="OH">Ohio</option>
+                <option value="OK">Oklahoma</option>
+                <option value="OR">Oregon</option>
+                <option value="PA">Pennsylvania</option>
+                <option value="RI">Rhode Island</option>
+                <option value="SC">South Carolina</option>
+                <option value="SD">South Dakota</option>
+                <option value="TN">Tennessee</option>
+                <option value="TX">Texas</option>
+                <option value="UT">Utah</option>
+                <option value="VT">Vermont</option>
+                <option value="VA">Virginia</option>
+                <option value="WA">Washington</option>
+                <option value="WV">West Virginia</option>
+                <option value="WI">Wisconsin</option>
+                <option value="WY">Wyoming</option>
+                <option value="DC">District of Columbia</option>
+            </select>
+            <p id="tax-display" class="text-sm text-gray-500 mt-2"></p>
+        </div>
+
+        <!-- Billing Details with visual separation -->
+        <form id="checkout-form" method="post" class="bg-white p-6 shadow-lg rounded-lg">
+            <h3 class="text-2xl font-semibold mb-4">Billing Details</h3>
             <label class="block text-lg font-semibold">Full Name</label>
             <input type="text" class="w-full p-3 border rounded-lg mt-2" placeholder="John Doe" required>
 
@@ -52,6 +115,10 @@
             <input type="text" class="w-full p-3 border rounded-lg mt-2" placeholder="123 Main St, City, State" required>
 
             <input type="hidden" id="paypal-amount" name="amount">
+            <input type="hidden" name="cmd" value="_xclick">
+            <input type="hidden" name="business" value="your-paypal-email@example.com">
+            <input type="hidden" name="currency_code" value="USD">
+            <input type="hidden" name="item_name" value="TomeTrove Books Order">
 
             <button type="submit" class="mt-6 w-full bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-700 transition">
                 Pay with PayPal
@@ -64,62 +131,203 @@
     </footer>
 
     <script>
+        // Add this object with state tax rates (before the DOMContentLoaded event)
+        const stateTaxRates = {
+            'AL': 0.04, 'AK': 0.00, 'AZ': 0.056, 'AR': 0.065, 'CA': 0.0725,
+            'CO': 0.029, 'CT': 0.0635, 'DE': 0.00, 'FL': 0.06, 'GA': 0.04,
+            'HI': 0.04, 'ID': 0.06, 'IL': 0.0625, 'IN': 0.07, 'IA': 0.06,
+            'KS': 0.065, 'KY': 0.06, 'LA': 0.0445, 'ME': 0.055, 'MD': 0.06,
+            'MA': 0.0625, 'MI': 0.06, 'MN': 0.06875, 'MS': 0.07, 'MO': 0.04225,
+            'MT': 0.00, 'NE': 0.055, 'NV': 0.0685, 'NH': 0.00, 'NJ': 0.06625,
+            'NM': 0.05125, 'NY': 0.04, 'NC': 0.0475, 'ND': 0.05, 'OH': 0.0575,
+            'OK': 0.045, 'OR': 0.00, 'PA': 0.06, 'RI': 0.07, 'SC': 0.06,
+            'SD': 0.045, 'TN': 0.07, 'TX': 0.0625, 'UT': 0.0485, 'VT': 0.06,
+            'VA': 0.053, 'WA': 0.065, 'WV': 0.06, 'WI': 0.05, 'WY': 0.04,
+            'DC': 0.06
+        };
+
+        // Add this function before the DOMContentLoaded event
+        function validateAddressWithState(address, state) {
+            // Convert state abbreviation to full name for checking
+            const stateNames = {
+                'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas',
+                // ... add all states ...
+                'WY': 'Wyoming', 'DC': 'District of Columbia'
+            };
+
+            const stateName = stateNames[state];
+            const addressUpper = address.toUpperCase();
+            const stateUpper = state.toUpperCase();
+            const stateNameUpper = stateName.toUpperCase();
+
+            // Check if either state abbreviation or full name is in address
+            return addressUpper.includes(stateUpper) || addressUpper.includes(stateNameUpper);
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const cartItemsContainer = document.getElementById("cart-items");
             const totalPriceElement = document.getElementById("total-price");
             let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-            if (cart.length > 0) {
-                let total = 0;
-                cartItemsContainer.innerHTML = cart.map(item => {
-                    // Remove the '$' symbol and convert to float
-                    const price = parseFloat(item.price.replace(/[^0-9.]/g, ''));
-                    const quantity = parseInt(item.quantity);
-                    const itemTotal = price * quantity;
-                    total += itemTotal;
+            const stateSelect = document.getElementById("state");
+    
+            // Add change event listener to state select
+            stateSelect.addEventListener('change', () => {
+                const selectedState = stateSelect.value;
+                const taxRate = stateTaxRates[selectedState] || 0;
+                const taxDisplay = document.getElementById('tax-display');
+                if (selectedState) {
+                    taxDisplay.textContent = `Tax rate for ${selectedState}: ${(taxRate * 100).toFixed(3)}%`;
+                } else {
+                    taxDisplay.textContent = '';
+                }
+                updateTotals();
+            });
+
+            function updateTotals() {
+                const submitButton = document.querySelector('#checkout-form button[type="submit"]');
+                
+                if (cart.length > 0) {
+                    let subtotal = 0;
+                    cartItemsContainer.innerHTML = cart.map((item, index) => {
+                        const price = parseFloat(item.price.replace(/[^0-9.]/g, ''));
+                        const quantity = parseInt(item.quantity);
+                        const itemTotal = price * quantity;
+                        subtotal += itemTotal;
+                        
+                        return `
+                            <div class="p-2 border-b flex justify-between items-center">
+                                <div>
+                                    <p class="text-lg font-semibold">${item.title} (${quantity})</p>
+                                    <p class="text-gray-600">Price per item: $${price.toFixed(2)}</p>
+                                    <p class="text-gray-600">Subtotal: $${itemTotal.toFixed(2)}</p>
+                                </div>
+                                <button onclick="removeItem(${index})" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700 transition">
+                                    Remove
+                                </button>
+                            </div>
+                        `;
+                    }).join("");
                     
-                    return `
-                        <div class="p-2 border-b">
-                            <p class="text-lg font-semibold">${item.title} (${quantity})</p>
-                            <p class="text-gray-600">Price per item: $${price.toFixed(2)}</p>
-                            <p class="text-gray-600">Subtotal: $${itemTotal.toFixed(2)}</p>
+                    // Calculate tax based on selected state
+                    const selectedState = document.getElementById("state").value;
+                    const taxRate = stateTaxRates[selectedState] || 0;
+                    const taxAmount = subtotal * taxRate;
+                    const total = subtotal + taxAmount;
+                    
+                    // Update total section with state-specific tax details
+                    cartItemsContainer.innerHTML += `
+                        <div class="mt-4 pt-4 border-t">
+                            <p class="text-xl font-bold">Order Details:</p>
+                            <p class="text-gray-600">Number of Items: ${cart.reduce((acc, item) => acc + parseInt(item.quantity), 0)}</p>
+                            <p class="text-gray-600">Number of Unique Books: ${cart.length}</p>
+                            <div class="mt-4">
+                                <p class="text-gray-600">Subtotal: $${subtotal.toFixed(2)}</p>
+                                <p class="text-gray-600">Tax (${(taxRate * 100).toFixed(3)}% - ${selectedState}): $${taxAmount.toFixed(2)}</p>
+                                <p class="text-xl font-bold mt-2">Total Amount: $${total.toFixed(2)}</p>
+                            </div>
                         </div>
                     `;
-                }).join("");
-                
-                // Add total section with more details
-                cartItemsContainer.innerHTML += `
-                    <div class="mt-4 pt-4 border-t">
-                        <p class="text-xl font-bold">Order Details:</p>
-                        <p class="text-gray-600">Number of Items: ${cart.reduce((acc, item) => acc + parseInt(item.quantity), 0)}</p>
-                        <p class="text-gray-600">Number of Unique Books: ${cart.length}</p>
-                        <p class="text-xl font-bold mt-2">Total Amount: $${total.toFixed(2)}</p>
-                    </div>
-                `;
-                
-                totalPriceElement.textContent = total.toFixed(2);
-                document.getElementById("paypal-amount").value = total.toFixed(2);
-            } else {
-                cartItemsContainer.innerHTML = `
-                    <div class="text-center py-4">
-                        <p class="text-gray-600">Your cart is empty.</p>
-                        <a href="index.html" class="text-blue-500 hover:underline mt-2 inline-block">
-                            Continue Shopping
-                        </a>
-                    </div>
-                `;
+                    
+                    totalPriceElement.textContent = total.toFixed(2);
+                    document.getElementById("paypal-amount").value = total.toFixed(2);
+                    
+                    submitButton.textContent = 'Pay with PayPal';
+                    submitButton.classList.remove('bg-gray-500');
+                    submitButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700');
+                    submitButton.disabled = false;
+                } else {
+                    cartItemsContainer.innerHTML = '<p class="text-gray-600">Your cart is empty.</p>';
+                    totalPriceElement.textContent = '0.00';
+                    document.getElementById("paypal-amount").value = '0.00';
+                    
+                    submitButton.textContent = 'Nothing to Purchase';
+                    submitButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-700');
+                    submitButton.classList.add('bg-gray-500');
+                    submitButton.disabled = true;
+                }
             }
+
+            // Add the removeItem function
+            function removeItem(index) {
+                cart.splice(index, 1);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                
+                if (cart.length === 0) {
+                    cartItemsContainer.innerHTML = '<p class="text-gray-600">Your cart is empty.</p>';
+                    totalPriceElement.textContent = '0.00';
+                    document.getElementById("paypal-amount").value = '0.00';
+                } else {
+                    updateTotals();
+                }
+            }
+
+            // Make the function globally available
+            window.removeItem = removeItem;
+
+            // Initial update
+            updateTotals();
 
             document.getElementById("checkout-form").addEventListener("submit", (event) => {
                 event.preventDefault();
+                
+                const stateSelect = document.getElementById("state");
+                const addressInput = document.querySelector('input[placeholder="123 Main St, City, State"]');
+                const selectedState = stateSelect.value;
+                const address = addressInput.value;
+
+                // Validation checks
+                if (!selectedState) {
+                    alert("Please select a state before proceeding.");
+                    stateSelect.focus();
+                    return;
+                }
+
+                if (!validateAddressWithState(address, selectedState)) {
+                    alert("The shipping address must include the selected state.");
+                    addressInput.focus();
+                    return;
+                }
+
                 const totalAmount = document.getElementById("paypal-amount").value;
 
                 if (totalAmount > 0) {
-                    const paypalURL = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=your-paypal-email@example.com&amount=${totalAmount}&currency_code=USD&item_name=TomeTrove%20Books&return=http://localhost:5500/success.html&cancel_return=http://localhost:5500/cart.html`;
-                    // Open PayPal in a new tab
-                    window.open(paypalURL, '_blank');
+                    // Create form and submit to PayPal
+                    const form = document.createElement('form');
+                    form.method = 'post';
+                    form.action = 'https://www.paypal.com/cgi-bin/webscr';
+                    form.target = '_blank';
+
+                    const fields = {
+                        'cmd': '_xclick',
+                        'business': '4444333312@business.example.com', // Replace with your PayPal sandbox email for testing
+                        'amount': totalAmount,
+                        'currency_code': 'USD',
+                        'item_name': 'TomeTrove Books Order',
+                        'return': window.location.origin + '/success.html',
+                        'cancel_return': window.location.origin + '/cart.html'
+                    };
+
+                    for (const [name, value] of Object.entries(fields)) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = name;
+                        input.value = value;
+                        form.appendChild(input);
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit();
+                    document.body.removeChild(form);
                 } else {
                     alert("Your cart is empty. Please add items before proceeding.");
+                }
+            });
+
+            // Add this to help users format their address correctly
+            document.querySelector('input[placeholder="123 Main St, City, State"]').addEventListener('focus', function() {
+                if (!this.value) {
+                    this.placeholder = "123 Main St, City, State Abbreviation or Full Name";
                 }
             });
         });

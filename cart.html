@@ -76,20 +76,39 @@
 
             function displayCart() {
                 if (cart.length > 0) {
-                    cartItems.innerHTML = cart.map((item, index) => `
-                        <div class="p-4 border-b flex justify-between items-start">
-                            <div class="flex-grow text-left">
-                                <p class="text-lg font-semibold mb-2">${item.title}</p>
-                                <div class="flex flex-col items-start">
-                                    <p class="text-gray-600 mb-1">Price: ${item.price}</p>
-                                    <p class="text-gray-600">Quantity: ${item.quantity}</p>
+                    let subtotal = 0;
+                    cartItems.innerHTML = cart.map((item, index) => {
+                        const price = parseFloat(item.price.replace(/[^0-9.]/g, ''));
+                        const quantity = parseInt(item.quantity);
+                        const itemTotal = price * quantity;
+                        subtotal += itemTotal;
+                        
+                        return `
+                            <div class="p-4 border-b flex justify-between items-start">
+                                <div class="flex-grow text-left">
+                                    <p class="text-lg font-semibold mb-2">${item.title}</p>
+                                    <div class="flex flex-col items-start">
+                                        <p class="text-gray-600 mb-1">Price: $${price.toFixed(2)}</p>
+                                        <p class="text-gray-600">Quantity: ${item.quantity}</p>
+                                        <p class="text-gray-600 mt-1">Item Total: $${itemTotal.toFixed(2)}</p>
+                                    </div>
                                 </div>
+                                <button onclick="removeItem(${index})" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700 transition ml-4">
+                                    Remove
+                                </button>
                             </div>
-                            <button onclick="removeItem(${index})" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700 transition ml-4">
-                                Remove
-                            </button>
+                        `;
+                    }).join("");
+
+                    // Add subtotal section
+                    cartItems.innerHTML += `
+                        <div class="mt-4 pt-4 border-t">
+                            <div class="text-right">
+                                <p class="text-xl font-bold">Subtotal: $${subtotal.toFixed(2)}</p>
+                            </div>
                         </div>
-                    `).join("");
+                    `;
+                    
                     checkoutButton.style.display = 'inline-block';
                 } else {
                     cartItems.innerHTML = '<p class="text-lg text-gray-600">There is nothing in the cart to purchase.</p>';
